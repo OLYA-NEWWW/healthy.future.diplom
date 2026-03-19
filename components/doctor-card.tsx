@@ -10,7 +10,7 @@ interface DoctorCardProps {
   specialty: string
   experience: number
   rating: number
-  price: number
+  price?: number
   image: string
   format: string[]
 }

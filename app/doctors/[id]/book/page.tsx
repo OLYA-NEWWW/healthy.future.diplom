@@ -1,210 +1,123 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, MessageSquare, Video, Check } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { Star, Award, GraduationCap, Clock, ArrowLeft, MessageSquare } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
+import Link from "next/link"
+import Image from "next/image"
 
-const timeSlots = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
-
-export default function BookDoctorPage() {
+export default function DoctorProfilePage() {
   const router = useRouter()
-  const [format, setFormat] = useState<"chat" | "video">("chat")
-  const [plan, setPlan] = useState<"basic" | "pro">("basic")
-  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const params = useParams()
+  const [doctor, setDoctor] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-  const handleBooking = () => {
-    router.push("/payment")
+  useEffect(() => {
+    if (params.id) {
+      loadDoctor()
+    }
+  }, [params.id])
+
+  const loadDoctor = async () => {
+    try {
+      const res = await fetch(`/api/doctors/${params.id}`)
+      const data = await res.json()
+      setDoctor(data.doctor)
+    } catch (error) {
+      console.error('Error loading doctor:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return <div className="p-8 text-center">Загрузка...</div>
+  }
+
+  if (!doctor) {
+    return <div className="p-8 text-center">Врач не найден</div>
   }
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
       <Button variant="ghost" onClick={() => router.back()} className="rounded-xl">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Назад к профилю
+        Назад
       </Button>
 
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Запись на консультацию</h1>
-        <p className="text-muted-foreground mt-2">Иванова Елена Сергеевна, Терапевт</p>
-      </div>
-
-      {/* Format Selection */}
-      <div>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Выберите формат</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <Card
-            className={cn(
-              "rounded-3xl cursor-pointer transition-all hover:shadow-lg",
-              format === "chat" ? "border-primary border-2 bg-primary/5" : "border-primary/10",
-            )}
-            onClick={() => setFormat("chat")}
-          >
-            <CardContent className="p-6 text-center space-y-3">
-              <div className="flex justify-center">
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <MessageSquare className="h-8 w-8 text-primary" />
-                </div>
+      <Card className="rounded-3xl border-primary/10 overflow-hidden">
+        <div className="bg-gradient-to-br from-[#7C5CFF]/10 to-[#C7B8FF]/10 p-8">
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="relative h-32 w-32 rounded-3xl overflow-hidden bg-muted flex-shrink-0">
+              <div className="h-full w-full bg-gradient-to-br from-[#C7B8FF] to-[#7C5CFF] flex items-center justify-center text-white text-4xl font-bold">
+                {doctor.name?.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Чат</h3>
-                <p className="text-sm text-muted-foreground mt-1">Текстовое общение</p>
-              </div>
-              {format === "chat" && (
-                <div className="flex justify-center">
-                  <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card
-            className={cn(
-              "rounded-3xl cursor-pointer transition-all hover:shadow-lg",
-              format === "video" ? "border-primary border-2 bg-primary/5" : "border-primary/10",
-            )}
-            onClick={() => setFormat("video")}
-          >
-            <CardContent className="p-6 text-center space-y-3">
-              <div className="flex justify-center">
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Video className="h-8 w-8 text-primary" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Видеозвонок</h3>
-                <p className="text-sm text-muted-foreground mt-1">Личная встреча онлайн</p>
-              </div>
-              {format === "video" && (
-                <div className="flex justify-center">
-                  <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Plan Selection */}
-      <div>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Выберите тариф</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card
-            className={cn(
-              "rounded-3xl cursor-pointer transition-all hover:shadow-lg",
-              plan === "basic" ? "border-primary border-2 bg-primary/5" : "border-primary/10",
-            )}
-            onClick={() => setPlan("basic")}
-          >
-            <CardContent className="p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-foreground">Базовый</h3>
-                {plan === "basic" && (
-                  <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-4 w-4 text-white" />
-                  </div>
-                )}
-              </div>
-              <p className="text-2xl font-bold text-primary">3000 ₽</p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>30 минут консультации</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Рекомендации по лечению</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Чат поддержки 24 часа</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card
-            className={cn(
-              "rounded-3xl cursor-pointer transition-all hover:shadow-lg",
-              plan === "pro" ? "border-primary border-2 bg-primary/5" : "border-primary/10",
-            )}
-            onClick={() => setPlan("pro")}
-          >
-            <CardContent className="p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-foreground">Продвинутый</h3>
-                {plan === "pro" && (
-                  <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-4 w-4 text-white" />
-                  </div>
-                )}
-              </div>
-              <p className="text-2xl font-bold text-primary">5000 ₽</p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>60 минут консультации</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Подробный план лечения</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Чат поддержки 7 дней</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>Повторная консультация -50%</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Time Selection */}
-      <div>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Выберите время</h2>
-        <Card className="rounded-3xl border-primary/10">
-          <CardContent className="p-6">
-            <p className="text-sm text-muted-foreground mb-4">Доступные слоты на завтра, 30 декабря</p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-              {timeSlots.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => setSelectedTime(time)}
-                  className={cn(
-                    "rounded-xl py-3 px-4 text-sm font-medium transition-all",
-                    selectedTime === time ? "bg-primary text-white" : "bg-muted hover:bg-primary/10 text-foreground",
-                  )}
-                >
-                  {time}
-                </button>
-              ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Payment Button */}
-      <div>
+            <div className="flex-1 space-y-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">{doctor.name}</h1>
+                <p className="text-lg text-muted-foreground">{doctor.specialty}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-6">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <span className="font-semibold text-xl">{doctor.rating || 5.0}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-[#7C5CFF]" />
+                  <span className="font-medium">{doctor.experience || 0} лет опыта</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <CardContent className="p-8 space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Award className="h-5 w-5 text-[#7C5CFF]" />
+              О враче
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">{doctor.bio || "Информация о враче отсутствует"}</p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-[#7C5CFF]" />
+              Образование и опыт
+            </h2>
+            <ul className="space-y-2">
+              {doctor.education?.length > 0 ? (
+                doctor.education.map((item: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2 text-muted-foreground">
+                    <span className="text-[#7C5CFF] mt-1.5">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="text-muted-foreground">Информация об образовании отсутствует</li>
+              )}
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-col sm:flex-row gap-3 sticky bottom-4">
         <Button
-          onClick={handleBooking}
-          disabled={!selectedTime}
-          className="w-full rounded-2xl h-14 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]"
+          onClick={() => router.push("/consultations/1")}
+          variant="outline"
+          className="flex-1 rounded-2xl h-14 bg-transparent"
         >
-          Перейти к оплате
+          <MessageSquare className="mr-2 h-5 w-5" />
+          Задать вопрос в чате
         </Button>
-        <p className="text-center text-xs text-muted-foreground mt-3">Оплата демонстрационная (для диплома)</p>
+        <Button asChild className="flex-1 rounded-2xl h-14 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]">
+          <Link href={`/doctors/${doctor.id}/book`}>Записаться</Link>
+        </Button>
       </div>
     </div>
   )

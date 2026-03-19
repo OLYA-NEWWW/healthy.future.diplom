@@ -1,0 +1,33 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `licenseNumber` on the `users` table. All the data in the column will be lost.
+
+*/
+-- RedefineTables
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+CREATE TABLE "new_users" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'PATIENT',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "name" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "specialty" TEXT,
+    "experience" INTEGER,
+    "price" INTEGER,
+    "bio" TEXT,
+    "education" TEXT,
+    "image" TEXT,
+    "format" TEXT,
+    "rating" REAL NOT NULL DEFAULT 5.0
+);
+INSERT INTO "new_users" ("bio", "createdAt", "email", "experience", "id", "name", "password", "role", "specialty", "status", "updatedAt") SELECT "bio", "createdAt", "email", "experience", "id", "name", "password", "role", "specialty", "status", "updatedAt" FROM "users";
+DROP TABLE "users";
+ALTER TABLE "new_users" RENAME TO "users";
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;

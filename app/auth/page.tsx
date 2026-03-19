@@ -50,9 +50,9 @@ export default function AuthPage() {
 
         localStorage.setItem('user', JSON.stringify(data.user))
 
-        if (data.user.role === 'DOCTOR') {
-          router.push('/doctor-dashboard')
-        } else {
+       if (data.user.role === 'DOCTOR') {
+          router.push('/doctor-profile') 
+      } else {
           router.push('/dashboard')
         }
 

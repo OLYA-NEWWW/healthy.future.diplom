@@ -8,19 +8,24 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   @default("PATIENT")
-  status    String   @default("ACTIVE")
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  role          String   @default("PATIENT")
+  status        String   @default("ACTIVE")
+  name          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  specialty     String?
-  licenseNumber String?
-  experience    Int?
-  bio           String?
+  // Поля для врача
+  specialty      String?
+  licenseNumber  String?  
+  experience     Int?
+  bio            String?
+  education      String   @default("[]")
+  image          String?
+  format         String   @default("[\"chat\"]")
+  rating         Float    @default(5.0)
 
   @@map("users")
 }

@@ -1,79 +1,44 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { DoctorCard } from "@/components/doctor-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-const doctors = [
-  {
-    id: "1",
-    name: "Иванова Елена Сергеевна",
-    specialty: "Терапевт",
-    experience: 15,
-    rating: 4.9,
-    price: 3000,
-    image: "/female-doctor.jpg",
-    format: ["chat", "video"],
-  },
-  {
-    id: "2",
-    name: "Смирнов Дмитрий Александрович",
-    specialty: "Кардиолог",
-    experience: 20,
-    rating: 4.8,
-    price: 4500,
-    image: "/male-doctor.jpg",
-    format: ["chat", "video"],
-  },
-  {
-    id: "3",
-    name: "Петрова Анна Викторовна",
-    specialty: "Невролог",
-    experience: 12,
-    rating: 4.9,
-    price: 4000,
-    image: "/female-doctor-neurologist.jpg",
-    format: ["chat", "video"],
-  },
-  {
-    id: "4",
-    name: "Козлов Сергей Иванович",
-    specialty: "Эндокринолог",
-    experience: 18,
-    rating: 4.7,
-    price: 3500,
-    image: "/male-doctor-endocrinologist.jpg",
-    format: ["chat", "video"],
-  },
-  {
-    id: "5",
-    name: "Новикова Мария Петровна",
-    specialty: "Психолог",
-    experience: 10,
-    rating: 4.8,
-    price: 3200,
-    image: "/female-nutritionist.jpg",
-    format: ["chat", "video"],
-  },
-]
-
 export default function DoctorsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [specialty, setSpecialty] = useState("all")
   const [format, setFormat] = useState<"all" | "chat" | "video">("all")
   const [sortBy, setSortBy] = useState("rating")
+  const [doctors, setDoctors] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadDoctors()
+  }, [])
+
+  const loadDoctors = async () => {
+    try {
+      const res = await fetch('/api/doctors')
+      const data = await res.json()
+      setDoctors(data.doctors || [])
+    } catch (error) {
+      console.error('Error loading doctors:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredDoctors = useMemo(() => {
     let filtered = [...doctors]
 
     if (searchQuery) {
       filtered = filtered.filter(
-        (doctor) =>
-          doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase()),
+        (doctor: any) =>
+          doctor.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doctor.specialty?.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     }
 
@@ -85,30 +50,34 @@ export default function DoctorsPage() {
         endocrinologist: "Эндокринолог",
         psychologist: "Психолог",
       }
-      filtered = filtered.filter((doctor) => doctor.specialty === specialtyMap[specialty])
+      filtered = filtered.filter((doctor: any) => doctor.specialty === specialtyMap[specialty])
     }
 
     if (format !== "all") {
-      filtered = filtered.filter((doctor) => doctor.format.includes(format))
+      filtered = filtered.filter((doctor: any) => doctor.format?.includes(format))
     }
 
-    filtered.sort((a, b) => {
+    filtered.sort((a: any, b: any) => {
       switch (sortBy) {
         case "rating":
-          return b.rating - a.rating
+          return (b.rating || 0) - (a.rating || 0)
         case "price-asc":
-          return a.price - b.price
+          return (a.price || 0) - (b.price || 0)
         case "price-desc":
-          return b.price - a.price
+          return (b.price || 0) - (a.price || 0)
         case "experience":
-          return b.experience - a.experience
+          return (b.experience || 0) - (a.experience || 0)
         default:
           return 0
       }
     })
 
     return filtered
-  }, [searchQuery, specialty, format, sortBy])
+  }, [searchQuery, specialty, format, sortBy, doctors])
+
+  if (loading) {
+    return <div className="p-8 text-center text-muted-foreground">Загрузка врачей...</div>
+  }
 
   return (
     <div className="space-y-6">
@@ -184,8 +153,6 @@ export default function DoctorsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="rating">По рейтингу</SelectItem>
-            <SelectItem value="price-asc">По цене (возрастание)</SelectItem>
-            <SelectItem value="price-desc">По цене (убывание)</SelectItem>
             <SelectItem value="experience">По опыту</SelectItem>
           </SelectContent>
         </Select>
@@ -197,10 +164,21 @@ export default function DoctorsPage() {
 
       <div className="space-y-4">
         {filteredDoctors.length > 0 ? (
-          filteredDoctors.map((doctor) => <DoctorCard key={doctor.id} {...doctor} />)
+          filteredDoctors.map((doctor: any) => (
+            <DoctorCard 
+              key={doctor.id} 
+              id={doctor.id}
+              name={doctor.name}
+              specialty={doctor.specialty}
+              experience={doctor.experience}
+              rating={doctor.rating}
+              image={doctor.image || "/placeholder.svg"}
+              format={doctor.format}
+            />
+          ))
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">По вашему запросу врачи не найдены</p>
+            <p className="text-muted-foreground">Врачи не найдены</p>
           </div>
         )}
       </div>
