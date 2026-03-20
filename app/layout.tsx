@@ -1,17 +1,22 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
+import { Inter, Manrope } from "next/font/google"
 import { AppShell } from "@/components/app-shell"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const inter = Inter({ 
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-inter"
+})
+
+const manrope = Manrope({ 
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-manrope"
+})
 
 export const metadata: Metadata = {
   title: "Healthy Future | Платформа мониторинга здоровья",
   description: "Платформа для мониторинга здоровья и восстановления",
-  generator: "v0.app",
   icons: {
     icon: [
       {
@@ -37,10 +42,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ru">
-      <body className={`font-sans antialiased`}>
+    <html lang="ru" className={`${inter.variable} ${manrope.variable}`}>
+      <body className="font-sans antialiased">
         <AppShell>{children}</AppShell>
-        <Analytics />
       </body>
     </html>
   )

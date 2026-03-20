@@ -172,8 +172,6 @@ export default function DoctorsPage() {
               specialty={doctor.specialty}
               experience={doctor.experience}
               rating={doctor.rating}
-              image={doctor.image || "/placeholder.svg"}
-              format={doctor.format}
             />
           ))
         ) : (

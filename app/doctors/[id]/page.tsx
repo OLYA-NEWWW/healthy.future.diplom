@@ -1,146 +1,224 @@
 "use client"
 
-import { Star, Award, GraduationCap, Clock, ArrowLeft, MessageSquare } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { Star, Award, GraduationCap, Clock, ArrowLeft, Calendar, CreditCard } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
-const doctor = {
-  id: "1",
-  name: "Иванова Елена Сергеевна",
-  specialty: "Терапевт",
-  experience: 15,
-  rating: 4.9,
-  reviewCount: 234,
-  price: 3000,
-  image: "/female-doctor.jpg",
-  about:
-    "Специалист высшей категории с 15-летним опытом работы. Специализируюсь на диагностике и лечении широкого спектра заболеваний. Индивидуальный подход к каждому пациенту.",
-  education: [
-    "Первый МГМУ им. И.М. Сеченова, лечебное дело (2008)",
-    "Ординатура по терапии, НИИ им. Склифосовского (2010)",
-    "Повышение квалификации, Европейская школа медицины (2020)",
-  ],
-  reviews: [
-    {
-      author: "Мария К.",
-      date: "15 дек 2024",
-      rating: 5,
-      text: "Отличный врач! Внимательная, профессиональная. Помогла разобраться с моими жалобами, назначила эффективное лечение.",
-    },
-    {
-      author: "Алексей П.",
-      date: "10 дек 2024",
-      rating: 5,
-      text: "Очень довольна консультацией. Врач уделила достаточно времени, всё подробно объяснила. Рекомендую!",
-    },
-  ],
-}
+const timeSlots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"]
 
 export default function DoctorProfilePage() {
   const router = useRouter()
+  const params = useParams()
+  const [doctor, setDoctor] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+ 
+  const [showBooking, setShowBooking] = useState(false)
+  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [showPayment, setShowPayment] = useState(false)
+
+  const [cardNumber, setCardNumber] = useState("")
+  const [cardHolder, setCardHolder] = useState("")
+  const [expiry, setExpiry] = useState("")
+  const [cvv, setCvv] = useState("")
+
+  useEffect(() => {
+    if (params.id) loadDoctor()
+  }, [params.id])
+
+  const loadDoctor = async () => {
+    try {
+      const res = await fetch(`/api/doctors/${params.id}`)
+      const data = await res.json()
+      setDoctor(data.doctor)
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePayment = (e: React.FormEvent) => {
+    e.preventDefault()
+    alert('Консультация оплачена! Врач свяжется с вами.')
+    router.push('/dashboard')
+  }
+
+  if (loading) return <div className="p-8 text-center">Загрузка...</div>
+  if (!doctor) return <div className="p-8 text-center">Врач не найден</div>
 
   return (
-    <div className="space-y-6">
-      <Button variant="ghost" onClick={() => router.back()} className="rounded-xl">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Назад
-      </Button>
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7FF] via-white to-[#F5F0FF] p-4 md:p-8">
+      <div className="max-w-2xl mx-auto space-y-6">
+        
+        <Button variant="ghost" onClick={() => router.back()} className="rounded-xl">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Назад
+        </Button>
 
-      <Card className="rounded-3xl border-primary/10 overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-8">
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="relative h-32 w-32 rounded-3xl overflow-hidden bg-muted flex-shrink-0">
-              <Image src={doctor.image || "/placeholder.svg"} alt={doctor.name} fill className="object-cover" />
+        <Card className="rounded-[2rem] border-primary/10 shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-br from-[#7C5CFF] to-[#C7B8FF] p-6 text-center">
+            <div className="h-24 w-24 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white text-3xl font-bold mx-auto border-4 border-white/30">
+              {doctor.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+              <span className="text-white font-semibold text-lg">{doctor.rating || 5.0}</span>
+            </div>
+          </div>
+
+          <CardContent className="p-6 space-y-4">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-foreground">{doctor.name}</h1>
+              <p className="text-muted-foreground">{doctor.specialty}</p>
+              <p className="text-sm text-[#7C5CFF] mt-1">{doctor.experience || 0} лет опыта</p>
             </div>
 
-            <div className="flex-1 space-y-4">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">{doctor.name}</h1>
-                <p className="text-lg text-muted-foreground">{doctor.specialty}</p>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Award className="h-5 w-5 text-[#7C5CFF]" />
+                О враче
+              </h2>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {doctor.bio || "Информация о враче отсутствует"}
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+                <GraduationCap className="h-5 w-5 text-[#7C5CFF]" />
+                Образование
+              </h2>
+              <ul className="space-y-1">
+                {doctor.education?.length > 0 ? (
+                  doctor.education.map((item: string, i: number) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="text-[#7C5CFF]">•</span>
+                      {item}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-sm text-muted-foreground">Информация отсутствует</li>
+                )}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+
+        {!showBooking && (
+          <Button 
+            onClick={() => setShowBooking(true)}
+            className="w-full rounded-2xl h-14 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] text-lg font-semibold"
+          >
+            <Calendar className="mr-2 h-5 w-5" />
+            Купить разовую консультацию
+          </Button>
+        )}
+
+        {showBooking && !showPayment && (
+          <Card className="rounded-[2rem] border-primary/10 shadow-lg">
+            <CardContent className="p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-center">Выберите время</h3>
+              <div className="grid grid-cols-3 gap-3">
+                {timeSlots.map((time) => (
+                  <button
+                    key={time}
+                    onClick={() => setSelectedTime(time)}
+                    className={`py-3 px-4 rounded-xl text-sm font-medium transition-all ${
+                      selectedTime === time
+                        ? 'bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] text-white'
+                        : 'bg-muted hover:bg-[#7C5CFF]/10'
+                    }`}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
+              <Button 
+                onClick={() => setShowPayment(true)}
+                disabled={!selectedTime}
+                className="w-full rounded-2xl h-12 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]"
+              >
+                Продолжить
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {showPayment && (
+          <Card className="rounded-[2rem] border-primary/10 shadow-lg">
+            <CardContent className="p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-center flex items-center justify-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Оплата консультации
+              </h3>
+              
+              <div className="bg-gradient-to-br from-[#7C5CFF] to-[#C7B8FF] text-white p-4 rounded-xl">
+                <p className="text-xs opacity-70 mb-1">Врач: {doctor.name}</p>
+                <p className="text-xs opacity-70 mb-1">Время: {selectedTime}</p>
+                <p className="text-lg font-bold">3000 ₽</p>
               </div>
 
-              <div className="flex flex-wrap gap-6">
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-xl">{doctor.rating}</span>
-                  <span className="text-muted-foreground">({doctor.reviewCount} отзывов)</span>
+              <form onSubmit={handlePayment} className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-sm">Номер карты</Label>
+                  <Input
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                    placeholder="1234 5678 9012 3456"
+                    className="rounded-xl h-12"
+                    maxLength={19}
+                    required
+                  />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <span className="font-medium">{doctor.experience} лет опыта</span>
+                <div className="space-y-2">
+                  <Label className="text-sm">Владелец</Label>
+                  <Input
+                    value={cardHolder}
+                    onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
+                    placeholder="IVAN IVANOV"
+                    className="rounded-xl h-12"
+                    required
+                  />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-primary">{doctor.price} ₽</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-sm">Срок</Label>
+                    <Input
+                      value={expiry}
+                      onChange={(e) => setExpiry(e.target.value)}
+                      placeholder="ММ/ГГ"
+                      className="rounded-xl h-12"
+                      maxLength={5}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm">CVV</Label>
+                    <Input
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value)}
+                      placeholder="123"
+                      className="rounded-xl h-12"
+                      maxLength={3}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                <Button 
+                  type="submit"
+                  className="w-full rounded-2xl h-12 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]"
+                >
+                  Оплатить 3000 ₽
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
 
-        <CardContent className="p-8 space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Award className="h-5 w-5 text-primary" />О враче
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">{doctor.about}</p>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-primary" />
-              Образование и опыт
-            </h2>
-            <ul className="space-y-2">
-              {doctor.education.map((item, index) => (
-                <li key={index} className="flex items-start gap-2 text-muted-foreground">
-                  <span className="text-primary mt-1.5">•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-semibold text-foreground mb-4">Отзывы</h2>
-            <div className="space-y-4">
-              {doctor.reviews.map((review, index) => (
-                <Card key={index} className="rounded-2xl border-primary/10 bg-muted/30">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="font-semibold text-foreground">{review.author}</p>
-                        <p className="text-xs text-muted-foreground">{review.date}</p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: review.rating }).map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{review.text}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-col sm:flex-row gap-3 sticky bottom-4">
-        <Button
-          onClick={() => router.push("/consultations/1")}
-          variant="outline"
-          className="flex-1 rounded-2xl h-14 bg-transparent"
-        >
-          <MessageSquare className="mr-2 h-5 w-5" />
-          Задать вопрос в чате
-        </Button>
-        <Button asChild className="flex-1 rounded-2xl h-14 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]">
-          <Link href={`/doctors/${doctor.id}/book`}>Записаться</Link>
-        </Button>
       </div>
     </div>
   )
