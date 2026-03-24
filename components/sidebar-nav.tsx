@@ -19,7 +19,6 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/dashboard", label: "Главная", icon: Home },
-  { href: "/health", label: "Мониторинг", icon: Activity },
   { href: "/health/map", label: "Карта здоровья", icon: Map },
   { href: "/ai", label: "ИИ-чат", icon: MessageSquare },
   { href: "/doctors", label: "Врачи", icon: Stethoscope },

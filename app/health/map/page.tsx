@@ -97,9 +97,9 @@ export default function HealthMapPage() {
           Добавить данные
         </Button>
         <Button asChild variant="outline" className="flex-1 rounded-2xl h-12 bg-transparent">
-          <Link href="/health">
+          <Link href="/">
             <TrendingUp className="mr-2 h-5 w-5" />
-            Открыть мониторинг
+           На главную
           </Link>
         </Button>
       </div>
