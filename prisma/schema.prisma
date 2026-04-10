@@ -17,7 +17,6 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Поля для врача
   specialty      String?
   licenseNumber  String?  
   experience     Int?

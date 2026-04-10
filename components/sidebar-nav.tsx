@@ -13,7 +13,6 @@ import {
   Gift,
   CreditCard,
   User,
-  Heart,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -35,12 +34,15 @@ export function SidebarNav() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-3 p-6 border-b border-border">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#C7B8FF] to-[#7C5CFF]">
-          <Heart className="h-5 w-5 text-white" />
+        <div className="flex h-15 w-15 items-center justify-center rounded-xl ">
+          <img 
+            src="/logo.png" 
+            alt="Healthy Future" 
+            className="h-50 w-50 object-contain"
+          />
         </div>
         <div>
           <h1 className="text-lg font-semibold text-foreground">Healthy Future</h1>
-          <span className="text-xs text-muted-foreground">beta</span>
         </div>
       </div>
 
