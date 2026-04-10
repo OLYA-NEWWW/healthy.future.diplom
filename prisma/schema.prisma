@@ -26,5 +26,12 @@ model User {
   format         String   @default("[\"chat\"]")
   rating         Float    @default(5.0)
 
+  bloodType          String?
+  chronicDiseases    String   @default("[]")
+  allergies          String   @default("[]")
+  medications        String   @default("[]")
+  healthDescription  String?
+ 
+
   @@map("users")
 }
