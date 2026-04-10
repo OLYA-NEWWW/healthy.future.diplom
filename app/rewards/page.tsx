@@ -1,6 +1,6 @@
 "use client"
 
-import { Gift, ShoppingBag, Sparkles } from "lucide-react"
+import { Gift, Sparkles } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -10,38 +10,38 @@ const products = [
   {
     id: "1",
     title: "Витамины группы B",
-    brand: "HealthPro",
+    brand: "Solgar",
     price: 1200,
     discountPrice: 960,
     pointsDiscount: 50,
-    image: "/placeholder.svg?height=200&width=200",
+    image: "/complexB.png",
   },
   {
     id: "2",
-    title: "Омега-3",
-    brand: "VitaMax",
+    title: "Цинк",
+    brand: "Solgar",
     price: 1800,
     discountPrice: 1440,
     pointsDiscount: 75,
-    image: "/placeholder.svg?height=200&width=200",
+    image: "/zinc.png",
   },
   {
     id: "3",
     title: "Магний B6",
-    brand: "WellCare",
+    brand: "Solgar",
     price: 900,
     discountPrice: 720,
     pointsDiscount: 40,
-    image: "/placeholder.svg?height=200&width=200",
+    image: "/magnezium.png",
   },
   {
     id: "4",
     title: "Витамин D3",
-    brand: "SunVit",
+    brand: "Solgar",
     price: 750,
     discountPrice: 600,
     pointsDiscount: 35,
-    image: "/placeholder.svg?height=200&width=200",
+    image: "/D3.png",
   },
 ]
 
@@ -55,23 +55,24 @@ export default function RewardsPage() {
         <p className="text-muted-foreground mt-2">Обменивайте баллы на скидки и товары для здоровья</p>
       </div>
 
-      <Card className="rounded-3xl border-primary/10 bg-gradient-to-br from-primary/10 to-primary/5">
+      <Card className="rounded-3xl border-none bg-gradient-to-br from-[#7C5CFF] to-[#C7B8FF]">
         <CardContent className="p-6 flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Доступно баллов</p>
-            <p className="text-4xl font-bold text-primary">{userPoints}</p>
-            <p className="text-sm text-muted-foreground mt-2">Участвуйте в челленджах чтобы заработать больше</p>
+          <div className="text-white">
+            <p className="text-sm text-white/80 mb-1">Доступно баллов</p>
+            <p className="text-4xl font-bold text-white">{userPoints}</p>
+            <p className="text-sm text-white/70 mt-2">Участвуйте в челленджах чтобы заработать больше</p>
           </div>
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#C7B8FF] to-[#7C5CFF]">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
             <Sparkles className="h-8 w-8 text-white" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl border-primary/10 bg-accent/20">
-        <CardContent className="p-4">
-          <p className="text-sm text-foreground leading-relaxed">
-            <strong>Как это работает:</strong> Зарабатывайте баллы, участвуя в челленджах и используя платформу.
+      <Card className="rounded-3xl border-primary/10 bg-[#7C5CFF]/5">
+        <CardContent className="p-6">
+          <h3 className="font-semibold text-foreground mb-2">Как это работает</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Зарабатывайте баллы, участвуя в челленджах и используя платформу.
             Обменивайте баллы на скидки для товаров для здоровья или используйте для оплаты подписки.
           </p>
         </CardContent>
@@ -89,9 +90,13 @@ export default function RewardsPage() {
           {products.map((product) => (
             <Card key={product.id} className="rounded-3xl border-primary/10 hover:shadow-lg transition-all">
               <CardContent className="p-4 space-y-3">
-                <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center mb-3">
-                  <ShoppingBag className="h-16 w-16 text-muted-foreground" />
-                </div>
+                <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center mb-3 overflow-hidden">
+                 <img 
+                   src={product.image} 
+                   alt={product.title}
+                   className="w-full h-full object-cover"
+                 />
+               </div>
 
                 <div>
                   <p className="text-xs text-muted-foreground">{product.brand}</p>
