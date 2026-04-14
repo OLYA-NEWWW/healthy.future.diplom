@@ -23,10 +23,10 @@ export default function ProSubscriptionPage() {
       <Card className="rounded-3xl border-primary/10 bg-gradient-to-br from-primary/10 to-primary/5">
         <CardContent className="p-8 text-center">
           <div className="flex items-baseline justify-center gap-2">
-            <span className="text-5xl font-bold text-primary">1990 ₽</span>
+            <span className="text-5xl font-bold text-primary">2990 ₽</span>
             <span className="text-xl text-muted-foreground">/ месяц</span>
           </div>
-          <p className="text-sm text-muted-foreground mt-2">или 19 900 ₽ за год (экономия 2 месяцев)</p>
+          <p className="text-sm text-muted-foreground mt-2">или 29 900 ₽ за год (экономия 2 месяцев)</p>
         </CardContent>
       </Card>
 
@@ -65,10 +65,10 @@ export default function ProSubscriptionPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-1">
-                  Неограниченные видеозвонки по записи / при изменениях показателей
+                  8 консультаций с выбранным врачом
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Проводите столько видеоконсультаций, сколько необходимо. Врач свяжется с вами при любых значительных
+                  Проводите консультации исходя из ваших потребностей. Врач свяжется с вами при любых значительных
                   изменениях в показателях.
                 </p>
               </div>

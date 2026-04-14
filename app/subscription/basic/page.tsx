@@ -23,10 +23,10 @@ export default function BasicSubscriptionPage() {
       <Card className="rounded-3xl border-primary/10 bg-gradient-to-br from-primary/10 to-primary/5">
         <CardContent className="p-8 text-center">
           <div className="flex items-baseline justify-center gap-2">
-            <span className="text-5xl font-bold text-primary">990 ₽</span>
+            <span className="text-5xl font-bold text-primary">1290 ₽</span>
             <span className="text-xl text-muted-foreground">/ месяц</span>
           </div>
-          <p className="text-sm text-muted-foreground mt-2">или 9 900 ₽ за год (экономия 2 месяцев)</p>
+          <p className="text-sm text-muted-foreground mt-2">или 12 900 ₽ за год (экономия 2 месяцев)</p>
         </CardContent>
       </Card>
 
@@ -52,9 +52,9 @@ export default function BasicSubscriptionPage() {
                 <Check className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Контроль состояния выбранным врачом</h3>
+                <h3 className="font-semibold text-foreground mb-1">Один курс медитаций на выбор</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Один врач следит за вашим состоянием на постоянной основе и помогает в процессе восстановления.
+                 Выбирайте понравившийся вам курс,исходя из потребностей.
                 </p>
               </div>
             </div>
@@ -64,9 +64,9 @@ export default function BasicSubscriptionPage() {
                 <Check className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-1">3 видеозвонка с врачами в месяц</h3>
+                <h3 className="font-semibold text-foreground mb-1">3 консультации с врачом</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Проводите полноценные консультации по видеосвязи для более детального обсуждения вашего состояния.
+                  Проводите полноценные консультации для более детального обсуждения вашего состояния.
                 </p>
               </div>
             </div>

@@ -10,8 +10,8 @@ import Link from "next/link"
 export default function SubscriptionPage() {
   const [period, setPeriod] = useState("Год")
 
-  const monthlyPrices = { basic: 990, pro: 1990 }
-  const yearlyPrices = { basic: 9900, pro: 19900 }
+  const monthlyPrices = { basic: 1290, pro: 2990 }
+  const yearlyPrices = { basic: 12900, pro: 29990 }
 
   const prices = period === "Год" ? yearlyPrices : monthlyPrices
 
@@ -62,7 +62,7 @@ export default function SubscriptionPage() {
               </div>
               <div className="flex items-start gap-3">
                 <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-foreground">3 видеозвонка с врачами в месяц</span>
+                <span className="text-sm text-foreground">3 консультации с врачом</span>
               </div>
               <div className="flex items-start gap-3">
                 <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
