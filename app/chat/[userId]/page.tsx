@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { 
-  ArrowLeft, Send, User, Loader2, Check, CheckCheck 
+  ArrowLeft, Send, User, Loader2, Check, CheckCheck, Stethoscope 
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,6 +21,7 @@ type Message = {
     name: string | null
     email: string
     image: string | null
+    role?: string
   }
 }
 
@@ -79,7 +80,14 @@ export default function ChatPage() {
       const res = await fetch(`/api/messages?userId=${userId}&otherUserId=${otherId}`)
       if (res.ok) {
         const data = await res.json()
-        setMessages(data.messages || [])
+        const messagesWithRoles = (data.messages || []).map((msg: any) => ({
+          ...msg,
+          sender: {
+            ...msg.sender,
+            role: msg.sender.role || (msg.senderId === otherId ? otherUser?.role : currentUser?.role)
+          }
+        }))
+        setMessages(messagesWithRoles)
       }
     } catch (error) {
       console.error('Error loading messages:', error)
@@ -122,7 +130,14 @@ export default function ChatPage() {
       if (!res.ok) throw new Error('Failed to send')
 
       const data = await res.json()
-      setMessages(prev => [...prev, data.message])
+      const newMessageWithRole = {
+        ...data.message,
+        sender: {
+          ...data.message.sender,
+          role: currentUser.role
+        }
+      }
+      setMessages(prev => [...prev, newMessageWithRole])
       setNewMessage("")
       inputRef.current?.focus()
     } catch (error) {
@@ -147,7 +162,98 @@ export default function ChatPage() {
     })
   }
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    
+    if (msgDate.getTime() === today.getTime()) {
+      return 'Сегодня'
+    }
+    
+    const diffDays = Math.floor((today.getTime() - msgDate.getTime()) / (1000 * 60 * 60 * 24))
+    if (diffDays === 1) return 'Вчера'
+    if (diffDays < 7) return date.toLocaleDateString('ru-RU', { weekday: 'long' })
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+  }
+
   const isMyMessage = (msg: Message) => msg.senderId === currentUser?.id
+
+  const renderMessages = () => {
+    const elements: React.ReactElement[] = []
+    
+    messages.forEach((msg, index) => {
+      const currentDate = formatDate(msg.createdAt)
+      const prevDate = index > 0 ? formatDate(messages[index - 1].createdAt) : null
+      
+      if (currentDate !== prevDate) {
+        elements.push(
+          <div key={`date-${index}`} className="flex justify-center my-4">
+            <div className="px-3 py-1 rounded-full bg-[#7C5CFF]/10 text-xs text-[#7C5CFF] font-medium">
+              {currentDate}
+            </div>
+          </div>
+        )
+      }
+      
+      const myMsg = isMyMessage(msg)
+      const showAvatar = index === 0 || messages[index - 1].senderId !== msg.senderId
+      const showName = !myMsg && showAvatar && otherUser?.role === 'DOCTOR'
+      
+      elements.push(
+        <div key={msg.id}>
+          {showName && (
+            <div className="ml-11 mb-1">
+              <span className="text-xs font-medium text-[#7C5CFF]">
+                {otherUserName}
+              </span>
+            </div>
+          )}
+          <div className={`flex gap-3 ${myMsg ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex-shrink-0 ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#C7B8FF] to-[#7C5CFF] flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                {msg.sender.image ? (
+                  <img src={msg.sender.image} alt="" className="h-full w-full rounded-full object-cover" />
+                ) : (
+                  (msg.sender.name || msg.sender.email).charAt(0).toUpperCase()
+                )}
+              </div>
+            </div>
+
+            <div className={`max-w-[70%] md:max-w-[60%] lg:max-w-[50%] ${myMsg ? 'items-end' : 'items-start'} flex flex-col`}>
+              <Card className={`rounded-2xl border-0 shadow-sm ${
+                myMsg 
+                  ? 'bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] text-white rounded-br-none' 
+                  : 'bg-white text-foreground rounded-bl-none'
+              }`}>
+                <CardContent className="p-3 py-2">
+                  <p className="text-sm leading-relaxed break-words">{msg.content}</p>
+                </CardContent>
+              </Card>
+              
+              <div className={`flex items-center gap-1 mt-1 ${myMsg ? 'flex-row-reverse' : ''}`}>
+                <span className="text-xs text-muted-foreground">
+                  {formatTime(msg.createdAt)}
+                </span>
+                {myMsg && (
+                  <span className="text-xs text-muted-foreground">
+                    {msg.read ? (
+                      <CheckCheck className="h-3 w-3 text-blue-500" />
+                    ) : (
+                      <Check className="h-3 w-3" />
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    })
+    
+    return elements
+  }
 
   if (loading) {
     return (
@@ -161,17 +267,23 @@ export default function ChatPage() {
   }
 
   const otherUserName = otherUser?.name || otherUser?.email?.split('@')[0] || 'Собеседник'
+  const otherUserRole = otherUser?.role === 'DOCTOR' ? 'Врач' : 'Пациент'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAF7FF] via-white to-[#F5F0FF] flex flex-col">
       <div className="bg-white/80 backdrop-blur-md border-b border-[#7C5CFF]/10 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => router.back()} 
+            className="rounded-full hover:bg-[#7C5CFF]/10"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           
           <div className="flex items-center gap-3 flex-1">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#C7B8FF] to-[#7C5CFF] flex items-center justify-center text-white font-bold">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#C7B8FF] to-[#7C5CFF] flex items-center justify-center text-white font-bold text-lg shadow-md">
               {otherUser?.image ? (
                 <img src={otherUser.image} alt="" className="h-full w-full rounded-full object-cover" />
               ) : (
@@ -179,80 +291,41 @@ export default function ChatPage() {
               )}
             </div>
             <div>
-              <h1 className="font-semibold text-foreground">{otherUserName}</h1>
-              <p className="text-xs text-muted-foreground">
-                {otherUser?.role === 'DOCTOR' ? 'Врач' : 'Пациент'}
-              </p>
+              <h1 className="font-semibold text-foreground text-lg">{otherUserName}</h1>
+              <div className="flex items-center gap-1.5">
+                {otherUser?.role === 'DOCTOR' && (
+                  <Stethoscope className="h-3 w-3 text-[#7C5CFF]" />
+                )}
+                <p className="text-xs text-muted-foreground">
+                  {otherUserRole}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <div className="w-full max-w-7xl mx-auto space-y-4">
           {messages.length === 0 ? (
             <div className="text-center py-12">
-              <div className="h-16 w-16 rounded-full bg-[#7C5CFF]/10 flex items-center justify-center mx-auto mb-4">
-                <User className="h-8 w-8 text-[#7C5CFF]" />
+              <div className="h-20 w-20 rounded-full bg-[#7C5CFF]/10 flex items-center justify-center mx-auto mb-4">
+                <User className="h-10 w-10 text-[#7C5CFF]" />
               </div>
-              <p className="text-muted-foreground">Начните общение</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Начните общение</h3>
+              <p className="text-muted-foreground max-w-sm mx-auto">
+                Напишите сообщение {otherUserRole === 'Врач' ? 'врачу' : 'пациенту'}, чтобы начать консультацию
+              </p>
             </div>
           ) : (
-            messages.map((msg, index) => {
-              const myMsg = isMyMessage(msg)
-              const showAvatar = index === 0 || messages[index - 1].senderId !== msg.senderId
-              
-              return (
-                <div
-                  key={msg.id}
-                  className={`flex gap-3 ${myMsg ? 'flex-row-reverse' : 'flex-row'}`}
-                >
-                  <div className={`flex-shrink-0 ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#C7B8FF] to-[#7C5CFF] flex items-center justify-center text-white text-sm font-bold">
-                      {msg.sender.image ? (
-                        <img src={msg.sender.image} alt="" className="h-full w-full rounded-full object-cover" />
-                      ) : (
-                        (msg.sender.name || msg.sender.email).charAt(0).toUpperCase()
-                      )}
-                    </div>
-                  </div>
-
-                  <div className={`max-w-[70%] ${myMsg ? 'items-end' : 'items-start'} flex flex-col`}>
-                    <Card className={`rounded-2xl border-0 shadow-sm ${
-                      myMsg 
-                        ? 'bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] text-white rounded-br-none' 
-                        : 'bg-white text-foreground rounded-bl-none'
-                    }`}>
-                      <CardContent className="p-3 py-2">
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
-                      </CardContent>
-                    </Card>
-                    
-                    <div className={`flex items-center gap-1 mt-1 ${myMsg ? 'flex-row-reverse' : ''}`}>
-                      <span className="text-xs text-muted-foreground">
-                        {formatTime(msg.createdAt)}
-                      </span>
-                      {myMsg && (
-                        <span className="text-xs text-muted-foreground">
-                          {msg.read ? (
-                            <CheckCheck className="h-3 w-3 text-blue-500" />
-                          ) : (
-                            <Check className="h-3 w-3" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )
-            })
+            renderMessages()
           )}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
       <div className="bg-white/80 backdrop-blur-md border-t border-[#7C5CFF]/10 p-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="w-full max-w-7xl mx-auto">
           <div className="flex gap-3">
             <Input
               ref={inputRef}
@@ -260,12 +333,12 @@ export default function ChatPage() {
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Введите сообщение..."
-              className="flex-1 rounded-full h-12 px-5 bg-white border-[#7C5CFF]/20 focus:border-[#7C5CFF]"
+              className="flex-1 rounded-full h-12 px-5 bg-white border-[#7C5CFF]/20 focus:border-[#7C5CFF] focus:ring-[#7C5CFF]/20 text-base"
             />
             <Button
               onClick={handleSend}
               disabled={!newMessage.trim() || sending}
-              className="rounded-full h-12 w-12 p-0 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] hover:opacity-90 disabled:opacity-50"
+              className="rounded-full h-12 w-12 p-0 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] hover:opacity-90 disabled:opacity-50 shadow-md hover:shadow-lg transition-all"
             >
               {sending ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

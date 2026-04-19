@@ -80,7 +80,7 @@ export default function AuthPage() {
           setIsLogin(true)
         } else {
           localStorage.setItem('user', JSON.stringify(data.user))
-          router.push('/onboarding')
+          router.push('/dashboard')
         }
       }
     } catch (err: any) {

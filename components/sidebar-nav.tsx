@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils"
 const patientNavItems = [
   { href: "/dashboard", label: "Главная", icon: Home },
   { href: "/health/map", label: "Карта здоровья", icon: Map },
+  { href: "/chats", label: "Чаты", icon: MessageSquare },
   { href: "/ai", label: "ИИ-чат", icon: MessageSquare },
   { href: "/doctors", label: "Врачи", icon: Stethoscope },
   { href: "/meditations", label: "Медитации", icon: Music },
