@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 const quickQuestions = [
-  { text: "Болит голова"},
-  { text: "Температура"},
-  { text: "Кашель"},
-  { text: "Бессонница"},
-  { text: "Стресс"},
-  { text: "Усталость" }
+  "Болит голова",
+  "Температура",
+  "Кашель",
+  "Бессонница",
+  "Стресс",
+  "Усталость"
 ]
 
 type Message = {
@@ -105,7 +105,7 @@ export default function MedicalAIPage() {
   }
 
   const handleQuickQuestion = (text: string) => {
-    setInputValue(text.replace(/[🤕🌡️🫁😴😰💪]/g, '').trim())
+    setInputValue(text)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -117,9 +117,9 @@ export default function MedicalAIPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         
-        <div className="mb-8 text-center">
+        <div className="mb-6 text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg mb-6">
             <Heart className="h-10 w-10 text-white" />
           </div>
@@ -133,7 +133,7 @@ export default function MedicalAIPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-white">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -172,7 +172,7 @@ export default function MedicalAIPage() {
         </div>
 
         {messages.length <= 1 && (
-          <div className="mb-8">
+          <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-blue-500" />
               Выберите симптом:
@@ -181,12 +181,11 @@ export default function MedicalAIPage() {
               {quickQuestions.map((q, i) => (
                 <button
                   key={i}
-                  onClick={() => handleQuickQuestion(q.text)}
+                  onClick={() => handleQuickQuestion(q)}
                   className="group bg-white border border-gray-200 hover:border-blue-300 hover:shadow-lg rounded-2xl p-4 text-left transition-all duration-300"
                 >
-                  <div className="text-2xl mb-2">{q.icon}</div>
                   <p className="font-medium text-gray-800 group-hover:text-blue-600">
-                    {q.text.replace(/[🤕🌡️🫁😴😰💪]/g, '')}
+                    {q}
                   </p>
                 </button>
               ))}
@@ -194,7 +193,9 @@ export default function MedicalAIPage() {
           </div>
         )}
 
-        <Card className="mb-8 border border-gray-300/50 shadow-xl overflow-hidden">
+        {/* Чат с полем ввода внутри — широкий */}
+        <Card className="mb-6 border border-gray-300/50 shadow-xl overflow-hidden">
+          {/* Шапка */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
             <div className="flex items-center justify-between text-white">
               <div className="flex items-center gap-3">
@@ -212,115 +213,108 @@ export default function MedicalAIPage() {
             </div>
           </div>
           
-          <CardContent className="p-0">
-            <div className="h-[400px] overflow-y-auto p-6 bg-gradient-to-b from-gray-50 to-white">
-              <div className="space-y-6">
-                {messages.map((msg) => (
-                  <div key={msg.id} className={`flex gap-4 ${msg.isUser ? 'flex-row-reverse' : ''}`}>
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0 ${
+          {/* Сообщения — растягиваются */}
+          <div className="max-h-[500px] overflow-y-auto p-6 bg-gradient-to-b from-gray-50 to-white">
+            <div className="space-y-6">
+              {messages.map((msg) => (
+                <div key={msg.id} className={`flex gap-4 ${msg.isUser ? 'flex-row-reverse' : ''}`}>
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0 ${
+                    msg.isUser 
+                      ? 'bg-gradient-to-br from-blue-500 to-blue-600' 
+                      : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                  }`}>
+                    {msg.isUser ? (
+                      <User className="h-5 w-5 text-white" />
+                    ) : (
+                      <Bot className="h-5 w-5 text-white" />
+                    )}
+                  </div>
+                  
+                  <div className={`flex-1 ${msg.isUser ? 'text-right' : ''}`}>
+                    <div className={`inline-block text-left rounded-2xl px-5 py-3 max-w-[90%] ${
                       msg.isUser 
-                        ? 'bg-gradient-to-br from-blue-500 to-blue-600' 
-                        : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' 
+                        : 'bg-white border border-gray-200 shadow-sm'
                     }`}>
-                      {msg.isUser ? (
-                        <User className="h-5 w-5 text-white" />
-                      ) : (
-                        <Bot className="h-5 w-5 text-white" />
+                      <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
+                    </div>
+                    <div className={`flex items-center gap-2 mt-2 ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
+                      <span className="text-xs text-gray-500">{msg.time}</span>
+                      {!msg.isUser && msg.isAI && (
+                        <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700">
+                          ИИ помощник
+                        </span>
                       )}
                     </div>
-                    
-                    <div className={`max-w-[75%] ${msg.isUser ? 'text-right' : ''}`}>
-                      <div className={`rounded-2xl px-5 py-3 ${
-                        msg.isUser 
-                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' 
-                          : 'bg-white border border-gray-200 shadow-sm'
-                      }`}>
-                        <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
+                  </div>
+                </div>
+              ))}
+              
+              {isLoading && (
+                <div className="flex gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
+                    <Bot className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-2xl px-5 py-3 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="flex gap-1">
+                        <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce"></div>
+                        <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
                       </div>
-                      <div className={`flex items-center gap-2 mt-2 ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-                        <span className="text-xs text-gray-500">{msg.time}</span>
-                        {!msg.isUser && msg.isAI && (
-                          <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700">
-                            ИИ помощник
-                          </span>
-                        )}
-                      </div>
+                      <span className="text-sm text-gray-600">Анализирую симптомы...</span>
                     </div>
                   </div>
-                ))}
-                
-                {isLoading && (
-                  <div className="flex gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
-                      <Bot className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="bg-white border border-gray-200 rounded-2xl px-5 py-3 shadow-sm">
-                      <div className="flex items-center gap-3">
-                        <div className="flex gap-1">
-                          <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce"></div>
-                          <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                          <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-                        </div>
-                        <span className="text-sm text-gray-600">Анализирую симптомы...</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <div ref={messagesEndRef} />
-              </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-gray-300/50 shadow-lg">
-          <div className="flex gap-3">
-            <div className="flex-1">
+          {/* Поле ввода — внутри чата */}
+          <div className="p-4 bg-white border-t border-gray-200">
+            <div className="flex gap-3">
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Опишите симптомы подробнее... (нажмите Enter для отправки)"
-                className="h-14 rounded-xl border-2 border-gray-300 focus:border-blue-500 text-base"
+                className="h-14 rounded-xl border-2 border-gray-300 focus:border-blue-500 text-base flex-1"
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500 mt-2 ml-2">
-                ИИ помнит всю беседу. Можете уточнять детали.
-              </p>
-            </div>
-            
-            <Button
-              onClick={sendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              className="h-14 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl transition-all duration-300"
-              size="lg"
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
+              
+              <Button
+                onClick={sendMessage}
+                disabled={!inputValue.trim() || isLoading}
+                className="h-14 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl transition-all duration-300"
+                size="lg"
+              >
+                {isLoading ? (
                   <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Отправка...</span>
-                </div>
-              ) : (
-                <>
-                  <Send className="h-5 w-5 mr-2" />
-                  Отправить
-                </>
-              )}
-            </Button>
+                ) : (
+                  <Send className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2 ml-1">
+              ИИ помнит всю беседу. Можете уточнять детали.
+            </p>
           </div>
-          
-          <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
-            <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-red-800 text-sm mb-1">
-                  Важная информация
-                </p>
-                <p className="text-xs text-red-700">
-                  ИИ-помощник не ставит диагнозы. При острых симптомах (сильная боль в груди, кровотечение, 
-                  затрудненное дыхание, высокая температура) немедленно вызывайте скорую помощь по номеру 103.
-                </p>
-              </div>
+        </Card>
+
+        {/* Предупреждение — под чатом */}
+        <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
+          <div className="flex items-start gap-3">
+            <Shield className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-red-800 text-sm mb-1">
+                Важная информация
+              </p>
+              <p className="text-xs text-red-700">
+                ИИ-помощник не ставит диагнозы. При острых симптомах (сильная боль в груди, кровотечение, 
+                затрудненное дыхание, высокая температура) немедленно вызывайте скорую помощь по номеру 103.
+              </p>
             </div>
           </div>
         </div>

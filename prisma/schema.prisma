@@ -32,6 +32,40 @@ model User {
   medications        String   @default("[]")
   healthDescription  String?
  
+  doctorAppointments  Appointment[] @relation("DoctorAppointments")
+  patientAppointments Appointment[] @relation("PatientAppointments")
+  
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
 
   @@map("users")
+}
+
+model Appointment {
+  id          String   @id @default(uuid())
+  doctorId    String
+  patientId   String
+  dateTime    DateTime
+  status      String   @default("PENDING")
+  price       Int      @default(3000)
+  createdAt   DateTime @default(now())
+  
+  doctor      User     @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  patient     User     @relation("PatientAppointments", fields: [patientId], references: [id])
+  
+  @@map("appointments")
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  senderId    String
+  receiverId  String
+  content     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@map("messages")
 }

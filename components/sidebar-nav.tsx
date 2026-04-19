@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 import {
   Home,
   Activity,
@@ -13,10 +14,13 @@ import {
   Gift,
   CreditCard,
   User,
+  Calendar,
+  Users,
+  UserCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const navItems = [
+const patientNavItems = [
   { href: "/dashboard", label: "Главная", icon: Home },
   { href: "/health/map", label: "Карта здоровья", icon: Map },
   { href: "/ai", label: "ИИ-чат", icon: MessageSquare },
@@ -28,8 +32,30 @@ const navItems = [
   { href: "/profile", label: "Профиль", icon: User },
 ]
 
+const doctorNavItems = [
+  { href: "/doctor/appointments", label: "Записи", icon: Calendar },
+  { href: "/doctor/patients", label: "Пациенты", icon: Users },
+  { href: "/doctor/profile", label: "Профиль", icon: UserCircle },
+]
+
 export function SidebarNav() {
   const pathname = usePathname()
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('user')
+    if (saved) {
+      const user = JSON.parse(saved)
+      setUserRole(user.role)
+    }
+  }, [])
+
+  const isDoctor = userRole === 'DOCTOR'
+  const navItems = isDoctor ? doctorNavItems : patientNavItems
+
+  const subtitle = isDoctor ? "Кабинет врача" : null
+
+  if (!userRole) return null 
 
   return (
     <div className="flex flex-col h-full">
@@ -43,6 +69,7 @@ export function SidebarNav() {
         </div>
         <div>
           <h1 className="text-lg font-semibold text-foreground">Healthy Future</h1>
+          {subtitle && <p className="text-xs text-[#7C5CFF]">{subtitle}</p>}
         </div>
       </div>
 

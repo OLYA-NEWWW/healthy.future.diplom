@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { Star, Award, GraduationCap, Clock, ArrowLeft, Calendar, CreditCard } from "lucide-react"
+import { Star, Award, GraduationCap, ArrowLeft, Calendar, CreditCard, CheckCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,10 +15,13 @@ export default function DoctorProfilePage() {
   const params = useParams()
   const [doctor, setDoctor] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<any>(null)
  
   const [showBooking, setShowBooking] = useState(false)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [showPayment, setShowPayment] = useState(false)
+  const [paymentProcessing, setPaymentProcessing] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
 
   const [cardNumber, setCardNumber] = useState("")
   const [cardHolder, setCardHolder] = useState("")
@@ -26,6 +29,10 @@ export default function DoctorProfilePage() {
   const [cvv, setCvv] = useState("")
 
   useEffect(() => {
+    const savedUser = localStorage.getItem('user')
+    if (savedUser) {
+      setCurrentUser(JSON.parse(savedUser))
+    }
     if (params.id) loadDoctor()
   }, [params.id])
 
@@ -41,10 +48,49 @@ export default function DoctorProfilePage() {
     }
   }
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert('Консультация оплачена! Врач свяжется с вами.')
-    router.push('/dashboard')
+    
+    if (!currentUser) {
+      alert('Необходимо авторизоваться')
+      router.push('/auth')
+      return
+    }
+
+    if (!selectedTime || !doctor) return
+
+    setPaymentProcessing(true)
+
+    try {
+      const today = new Date()
+      const [hours, minutes] = selectedTime.split(':')
+      today.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+      
+      const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          doctorId: doctor.id,
+          patientId: currentUser.id,
+          dateTime: today.toISOString(),
+          price: 3000,
+        }),
+      })
+
+      if (res.ok) {
+        setPaymentSuccess(true)
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 2000)
+      } else {
+        throw new Error('Failed to create appointment')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Ошибка при создании записи')
+    } finally {
+      setPaymentProcessing(false)
+    }
   }
 
   if (loading) return <div className="p-8 text-center">Загрузка...</div>
@@ -108,7 +154,7 @@ export default function DoctorProfilePage() {
           </CardContent>
         </Card>
 
-        {!showBooking && (
+        {!showBooking && !paymentSuccess && (
           <Button 
             onClick={() => setShowBooking(true)}
             className="w-full rounded-2xl h-14 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] text-lg font-semibold"
@@ -118,7 +164,7 @@ export default function DoctorProfilePage() {
           </Button>
         )}
 
-        {showBooking && !showPayment && (
+        {showBooking && !showPayment && !paymentSuccess && (
           <Card className="rounded-[2rem] border-primary/10 shadow-lg">
             <CardContent className="p-6 space-y-4">
               <h3 className="text-lg font-semibold text-center">Выберите время</h3>
@@ -148,7 +194,7 @@ export default function DoctorProfilePage() {
           </Card>
         )}
 
-        {showPayment && (
+        {showPayment && !paymentSuccess && (
           <Card className="rounded-[2rem] border-primary/10 shadow-lg">
             <CardContent className="p-6 space-y-4">
               <h3 className="text-lg font-semibold text-center flex items-center justify-center gap-2">
@@ -210,11 +256,29 @@ export default function DoctorProfilePage() {
                 </div>
                 <Button 
                   type="submit"
+                  disabled={paymentProcessing}
                   className="w-full rounded-2xl h-12 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]"
                 >
-                  Оплатить 3000 ₽
+                  {paymentProcessing ? 'Обработка...' : 'Оплатить 3000 ₽'}
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {paymentSuccess && (
+          <Card className="rounded-[2rem] border-green-200 shadow-lg bg-green-50">
+            <CardContent className="p-8 text-center space-y-4">
+              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-green-800">Запись подтверждена!</h3>
+              <p className="text-green-700">
+                Вы успешно записались к {doctor.name} на {selectedTime}
+              </p>
+              <p className="text-sm text-green-600">
+                Перенаправление в личный кабинет...
+              </p>
             </CardContent>
           </Card>
         )}
