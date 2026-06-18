@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Check, AlertCircle } from "lucide-react"
+import { Check, Sparkles } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { SegmentedControl } from "@/components/segmented-control"
@@ -16,20 +16,24 @@ export default function SubscriptionPage() {
   const prices = period === "Год" ? yearlyPrices : monthlyPrices
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Подписка</h1>
         <p className="text-muted-foreground mt-2">Выберите план подписки для полного доступа к возможностям</p>
       </div>
 
-      <Card className="rounded-3xl border-warning/30 bg-warning/5">
-        <CardContent className="p-6 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+      <Card className="rounded-3xl border-none bg-gradient-to-br from-[#7C5CFF] to-[#A78BFA] text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+        <CardContent className="p-6 relative z-10 flex items-start gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 backdrop-blur flex-shrink-0">
+            <Sparkles className="h-5 w-5 text-white" />
+          </div>
           <div>
-            <p className="font-semibold text-foreground mb-1">Бесплатная версия</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              В бесплатной версии доступно 3 диалога с ИИ-консультантом в месяц. Оформите подписку для безлимитного
-              доступа и дополнительных функций.
+            <p className="font-semibold text-white mb-1">Бесплатная версия</p>
+            <p className="text-sm text-white/80 leading-relaxed">
+              В бесплатной версии доступно 3 диалога с ИИ-консультантом в месяц. 
+              Оформите подписку для безлимитного доступа и дополнительных функций.
             </p>
           </div>
         </CardContent>
@@ -39,9 +43,9 @@ export default function SubscriptionPage() {
         <SegmentedControl options={["Год", "Месяц"]} value={period} onChange={setPeriod} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        <Card className="rounded-[2rem] border-primary/10 hover:shadow-xl transition-all">
-          <CardContent className="p-8 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="rounded-[2rem] border-primary/10 hover:shadow-xl transition-all flex flex-col">
+          <CardContent className="p-8 space-y-6 flex flex-col flex-1">
             <div>
               <h3 className="text-2xl font-bold text-foreground mb-2">Базовая подписка</h3>
               <div className="flex items-baseline gap-2">
@@ -51,7 +55,7 @@ export default function SubscriptionPage() {
               {period === "Год" && <p className="text-sm text-success mt-1">Экономия 2 месяцев при годовой оплате</p>}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 flex-1">
               <div className="flex items-start gap-3">
                 <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-foreground">Безлимитные чаты с ИИ-консультантом</span>
@@ -74,7 +78,7 @@ export default function SubscriptionPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 pt-4">
+            <div className="flex flex-col gap-3 pt-4 mt-auto">
               <Button asChild className="w-full rounded-2xl h-12 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]">
                 <Link href="/payment">Оплатить</Link>
               </Button>
@@ -85,11 +89,11 @@ export default function SubscriptionPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[2rem] border-primary/10 hover:shadow-xl transition-all relative overflow-hidden">
+        <Card className="rounded-[2rem] border-primary/10 hover:shadow-xl transition-all relative overflow-hidden flex flex-col">
           <div className="absolute top-4 right-4 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] text-white text-xs font-semibold px-3 py-1 rounded-full">
             Популярный
           </div>
-          <CardContent className="p-8 space-y-6">
+          <CardContent className="p-8 space-y-6 flex flex-col flex-1">
             <div>
               <h3 className="text-2xl font-bold text-foreground mb-2">Продвинутая подписка</h3>
               <div className="flex items-baseline gap-2">
@@ -99,7 +103,7 @@ export default function SubscriptionPage() {
               {period === "Год" && <p className="text-sm text-success mt-1">Экономия 2 месяцев при годовой оплате</p>}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 flex-1">
               <div className="flex items-start gap-3">
                 <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-foreground">Все возможности базовой подписки</span>
@@ -126,7 +130,7 @@ export default function SubscriptionPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 pt-4">
+            <div className="flex flex-col gap-3 pt-4 mt-auto">
               <Button asChild className="w-full rounded-2xl h-12 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]">
                 <Link href="/payment">Оплатить</Link>
               </Button>
