@@ -46,7 +46,7 @@ export default function MeditationsPage() {
         {courses.map((course) => (
           <Card
             key={course.id}
-            className="rounded-3xl border-primary/10 overflow-hidden hover:shadow-lg transition-all"
+            className="rounded-3xl border-primary/10 overflow-hidden hover:shadow-lg transition-all flex flex-col"
           >
             <div className="h-48 bg-cover bg-center relative" style={{ backgroundImage: `url(${course.image})` }}>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -54,8 +54,8 @@ export default function MeditationsPage() {
                 <p className="text-white text-sm font-medium">{course.duration}</p>
               </div>
             </div>
-            <CardContent className="p-6 space-y-4">
-              <div>
+            <CardContent className="p-6 space-y-4 flex flex-col flex-1">
+              <div className="flex-1">
                 <h3 className="text-xl font-semibold text-foreground mb-2">{course.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{course.description}</p>
               </div>
@@ -72,7 +72,7 @@ export default function MeditationsPage() {
                 </div>
               ) : null}
 
-              <Button asChild className="w-full rounded-2xl h-12 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF]">
+              <Button asChild className="w-full rounded-2xl h-12 bg-gradient-to-r from-[#C7B8FF] to-[#7C5CFF] mt-auto">
                 <Link href={`/meditations/${course.id}`}>Открыть курс</Link>
               </Button>
             </CardContent>
